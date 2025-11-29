@@ -1,0 +1,15 @@
+{
+  "name": "demo-backend",
+  "version": "1.0.0",
+  "description": "Simple backend API for Kubernetes demo",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "cors": "^2.8.5",
+    "prom-client": "^15.0.0"
+  }
+}
+
