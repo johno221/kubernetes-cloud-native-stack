@@ -29,7 +29,6 @@ docker push ghcr.io/johno221/demo-frontend:1.0.0
 
 
 # login 
-echo "token" | docker login ghcr.io -u johno221 --password-stdin
 
 
 # helm 
