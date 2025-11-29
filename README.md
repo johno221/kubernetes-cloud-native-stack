@@ -26,10 +26,10 @@ docker tag demo-frontend:local ghcr.io/johno221/demo-frontend:1.0.0
 docker push ghcr.io/johno221/demo-backend:1.0.0
 docker push ghcr.io/johno221/demo-frontend:1.0.0
 
-token= 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
+
 
 # login 
-echo "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" | docker login ghcr.io -u johno221 --password-stdin
+echo "token" | docker login ghcr.io -u johno221 --password-stdin
 
 
 # helm 
