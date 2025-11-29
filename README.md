@@ -26,11 +26,6 @@ docker tag demo-frontend:local ghcr.io/johno221/demo-frontend:1.0.0
 docker push ghcr.io/johno221/demo-backend:1.0.0
 docker push ghcr.io/johno221/demo-frontend:1.0.0
 
-
-
-# login 
-
-
 # helm 
 cd ~/kubernetes-cloud-native-stack/helm/demo-app
 
