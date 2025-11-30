@@ -47,3 +47,20 @@ Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value $line
 
 
 ![alt text](image-1.png)
+
+# gitops 
+
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl get pods -n argocd
+
+# overit a forward port 
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# heslo: 
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d; echo
+
+
+![alt text](image.png)
