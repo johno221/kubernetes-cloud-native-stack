@@ -4,13 +4,13 @@ frontend:
     repository: ghcr.io/johno221/demo-frontend
     tag: "a0e5306"
     pullPolicy: IfNotPresent
-  replicaCount: 2
+  replicaCount: 3
 backend:
   image:
     repository: ghcr.io/johno221/demo-backend
     tag: "a0e5306"
     pullPolicy: IfNotPresent
-  replicaCount: 2
+  replicaCount: 3
 ingress:
   enabled: true
   host: demo.local
