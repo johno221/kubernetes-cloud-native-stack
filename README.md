@@ -65,3 +65,9 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 
 ![alt text](image.png)
 ![alt text](image-2.png)
+
+# cicd 
+crate token with permissin write and past to repo 
+![alt text](image-3.png)
+
+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
