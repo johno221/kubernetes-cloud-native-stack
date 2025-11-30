@@ -1,0 +1,103 @@
+name: CI/CD - build images & update Helm
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**"
+      - "helm/demo-app/**"
+      - ".github/workflows/cicd.yml"
+
+permissions:
+  contents: write     # commit & push úpravy values.yaml
+  packages: write     # push do GHCR
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ghcr.io/johno221      # <<< sem tvoje GitHub meno
+  CHART_VALUES: helm/demo-app/values.yaml
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Compute image tag (short sha)
+        id: meta
+        run: |
+          TAG=${GITHUB_SHA::7}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/backend
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAMESPACE }}/demo-backend:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_NAMESPACE }}/demo-backend:latest
+
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/frontend
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAMESPACE }}/demo-frontend:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_NAMESPACE }}/demo-frontend:latest
+
+  update-helm-values:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update image tags in values.yaml
+        env:
+          TAG: ${{ needs.build-and-push.outputs.image_tag }}
+        run: |
+          echo "Using image tag: $TAG"
+
+          yq -i ".backend.image.tag = \"$TAG\"" "$CHART_VALUES"
+          yq -i ".frontend.image.tag = \"$TAG\"" "$CHART_VALUES"
+
+          echo "Updated values.yaml:"
+          cat "$CHART_VALUES"
+
+      - name: Commit & push changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes in values.yaml, skipping commit."
+            exit 0
+          fi
+
+          TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          git add "$CHART_VALUES"
+          git commit -m "chore: update images to tag $TAG"
+          git push origin HEAD:main
+
