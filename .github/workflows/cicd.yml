@@ -10,13 +10,13 @@ on:
       - ".github/workflows/cicd.yml"
 
 permissions:
-  contents: write     # commit & push úpravy values.yaml
-  packages: write     # push do GHCR
+  contents: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ghcr.io/johno221      # <<< sem tvoje GitHub meno
-  CHART_VALUES: helm/demo-app/values.yaml
+  IMAGE_NAMESPACE: ghcr.io/johno221
+  VALUES_FILE: helm/demo-app/values.yaml
 
 jobs:
   build-and-push:
@@ -39,7 +39,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }} 
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build & push backend image
         uses: docker/build-push-action@v5
@@ -58,12 +58,10 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAMESPACE }}/demo-frontend:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE_NAMESPACE }}/demo-frontend:latest
+
   update-helm:
     runs-on: ubuntu-latest
     needs: build-and-push
-
-    env:
-      VALUES_FILE: helm/demo-app/values.yaml
 
     steps:
       - name: Checkout repo
@@ -82,6 +80,10 @@ jobs:
           CURRENT_BACKEND_TAG=$(yq '.backend.image.tag' "$VALUES_FILE")
           CURRENT_FRONTEND_TAG=$(yq '.frontend.image.tag' "$VALUES_FILE")
 
+          echo "Current backend tag: $CURRENT_BACKEND_TAG"
+          echo "Current frontend tag: $CURRENT_FRONTEND_TAG"
+          echo "New tag: $TAG"
+
           if [ "$CURRENT_BACKEND_TAG" = "$TAG" ] && [ "$CURRENT_FRONTEND_TAG" = "$TAG" ]; then
             echo "Image tag sa nezmenil – Helm chart neupdatujem."
             exit 0
@@ -90,6 +92,11 @@ jobs:
           echo "Image tag sa zmenil – updatujem Helm chart..."
           yq -i ".backend.image.tag = \"$TAG\"" "$VALUES_FILE"
           yq -i ".frontend.image.tag = \"$TAG\"" "$VALUES_FILE"
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Commit & push updated values.yaml
         run: |
