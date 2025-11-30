@@ -32,3 +32,18 @@ cd ~/kubernetes-cloud-native-stack/helm/demo-app
 helm install demo-app . \
   --namespace app \
   --create-namespace
+
+# test template
+helm template demo-app helm/demo-app
+
+# nstavenie host name 
+wsl - 172.25.233.201   demo.local
+alebo cez poweshell 
+
+$ip = "172.25.233.201"
+$domain = "demo.local"
+$line = "$ip`t$domain"
+Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value $line
+
+
+![alt text](image-1.png)
