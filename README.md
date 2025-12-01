@@ -1,73 +1,131 @@
-# kubernetes-clocud-native-stack
-Production-ready cloud native environment for a frontend + backend application on Kubernetes with GitOps, CI/CD, security, and monitoring.
+# Kubernetes Cloud-Native Stack
 
+Production-ready cloud-native environment for frontend + backend aplikáciu postavenú na Kubernetes s podporou GitOps, CI/CD, bezpečnosti a monitoringu.
 
-# docker build, test and push to GitHub registry
-cd apps/backed
+---
+
+## Build, Test & Push Images
+
+### Backend
+```bash
+cd apps/backend
 docker build -t demo-backend:local .
 docker run --rm -p 8080:8080 demo-backend:local
-http://localhost:8080/health
-http://localhost:8080/api/hello
-http://localhost:8080/api/info
-http://localhost:8080/metrics
+```
 
+Endpoints:
+- http://localhost:8080/health
+- http://localhost:8080/api/hello
+- http://localhost:8080/api/info
+- http://localhost:8080/metrics
+
+### Frontend
+```bash
 cd apps/frontend
 docker build -t demo-frontend:local .
 docker run --rm -p 8081:80 demo-frontend:local
-http://localhost:8081
+```
 
-# tag
+App:
+- http://localhost:8081
+
+---
+
+## Push to GitHub Container Registry
+
+### Tag images
+```bash
 docker tag demo-backend:local ghcr.io/johno221/demo-backend:1.0.0
-
 docker tag demo-frontend:local ghcr.io/johno221/demo-frontend:1.0.0
+```
 
-# push to registry 
-
+### Push
+```bash
 docker push ghcr.io/johno221/demo-backend:1.0.0
 docker push ghcr.io/johno221/demo-frontend:1.0.0
+```
 
-# helm 
-cd ~/kubernetes-cloud-native-stack/helm/demo-app
+---
 
+## Deploy with Helm
+
+```bash
+cd helm/demo-app
 helm install demo-app . \
   --namespace app \
   --create-namespace
+```
 
-# test template
+Test rendering:
+```bash
 helm template demo-app helm/demo-app
+```
 
-# nstavenie host name 
-wsl - 172.25.233.201   demo.local
-alebo cez poweshell 
+---
 
+## Local Domain Mapping
+
+### Windows (PowerShell as Admin)
+```powershell
 $ip = "172.25.233.201"
 $domain = "demo.local"
 $line = "$ip`t$domain"
 Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value $line
-
+```
 
 ![alt text](image-1.png)
 
-# gitops 
+### WSL
+```
+172.25.233.201   demo.local
+```
 
+---
+
+## GitOps (ArgoCD)
+
+### Install
+```bash
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl get pods -n argocd
+```
 
-# overit a forward port 
-
+### Access UI
+```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+URL:
+```
+https://localhost:8080
+```
 
-# heslo: 
+### Admin Password
+```bash
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d; echo
-
+```
 
 ![alt text](image.png)
 ![alt text](image-2.png)
 
-# cicd 
-crate token with permissin write and past to repo 
+---
+
+## CI/CD
+
+- Vytvoriť GitHub token s **write** oprávneniami
+- Uložiť ho ako secret do repozitára
+
+---
+
 ![alt text](image-3.png)
 
-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
+## Monitoring (Prometheus)
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+kubectl create namespace monitoring
+```
+
+---
