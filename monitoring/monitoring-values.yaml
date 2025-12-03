@@ -1,0 +1,27 @@
+# monitoring-values.yaml
+
+grafana:
+  admin:
+    existingSecret: grafana-admin-credentials   
+    userKey: admin-user
+    passwordKey: admin-password
+  service:
+    type: NodePort
+    nodePort: 32000
+
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 32001
+
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: "default"
+    receivers:
+      - name: "default"
+        email_configs:
+          - to: "johny.balint@gmail.com"
+            send_resolved: true

@@ -121,6 +121,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ![alt text](image-3.png)
 
 ## Monitoring (Prometheus)
+-- oddelit monitoring deployment od deploymentntu apps pod -ns monitoring
 
 ```bash
 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
@@ -128,6 +129,11 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
   --create-namespace
 
 ```
+kubectl create secret generic grafana-admin-credentials \
+  -n monitoring \
+  --from-literal=admin-user=admin \
+  --from-literal=admin-password='semheslopridam'
+
 
 ```bash
 kube-prometheus-stack has been installed. Check its status by running:

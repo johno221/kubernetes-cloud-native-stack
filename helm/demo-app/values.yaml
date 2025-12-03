@@ -14,21 +14,3 @@ backend:
 ingress:
   enabled: true
   host: demo.local
-grafana:
-  adminPassword: "admin"
-  service:
-    type: NodePort
-    nodePort: 32000
-alertmanager:
-  config:
-    global:
-      resolve_timeout: 5m
-    route:
-      receiver: "default"
-    receivers:
-      - name: "default"
-        email_configs: [johny.balint@gmail.com]
-prometheus:
-  service:
-    type: NodePort
-    nodePort: 32001
