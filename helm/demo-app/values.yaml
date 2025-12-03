@@ -1,24 +1,29 @@
 namespace: app
+
 frontend:
   image:
     repository: ghcr.io/johno221/demo-frontend
     tag: "0cf3bb1"
     pullPolicy: IfNotPresent
   replicaCount: 3
+
 backend:
   image:
     repository: ghcr.io/johno221/demo-backend
     tag: "0cf3bb1"
     pullPolicy: IfNotPresent
   replicaCount: 3
+
 ingress:
   enabled: true
   host: demo.local
+
 grafana:
   adminPassword: "admin"
   service:
     type: NodePort
     nodePort: 32000
+
 alertmanager:
   config:
     global:
@@ -28,6 +33,7 @@ alertmanager:
     receivers:
       - name: "default"
         email_configs: [johny.balint@gmail.com]
+
 prometheus:
   service:
     type: NodePort
