@@ -2,13 +2,13 @@ namespace: app
 frontend:
   image:
     repository: ghcr.io/johno221/demo-frontend
-    tag: "e85cec3"
+    tag: "81fe6a3"
     pullPolicy: IfNotPresent
   replicaCount: 3
 backend:
   image:
     repository: ghcr.io/johno221/demo-backend
-    tag: "e85cec3"
+    tag: "81fe6a3"
     pullPolicy: IfNotPresent
   replicaCount: 3
 ingress:
